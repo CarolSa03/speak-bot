@@ -47,29 +47,25 @@ async def call(ctx):
 
 @bot.command()
 async def read(ctx, *, message: str):
-    await ctx.send("Starting text-to-speech process...")  # Debug message
 
     if ctx.voice_client is None:
         if ctx.author.voice:
             channel = ctx.author.voice.channel
-            await ctx.send(f"Bot not connected. Connecting to {channel.name}...")  # Debug message
+            await ctx.send(f"Bot not connected. Connecting to {channel.name}...")
             await channel.connect()
         else:
             await ctx.send("You need to be in a voice channel or use !call first!")
             return
 
     try:
-        await ctx.send("Generating TTS audio...")
         tts = gTTS(text=message, lang='en')
         tts.save("tts_output.mp3")
-        await ctx.send("TTS audio generated successfully.")
 
         source = FFmpegPCMAudio('tts_output.mp3')
         voice_client = ctx.voice_client
 
         if voice_client.is_playing():
             voice_client.stop()
-            await ctx.send("Stopped previous audio.")
 
         voice_client.play(source)
         await ctx.send(f"Speaking: {message}")
